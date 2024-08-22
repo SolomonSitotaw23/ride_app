@@ -5,6 +5,7 @@ import InputField from '@/components/InputFIeld';
 import { useState } from 'react';
 import CustomButton from '@/components/CustomButton';
 import { Link } from 'expo-router';
+import OAuth from '@/components/OAuth';
 
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -48,6 +49,7 @@ const SignUp = () => {
         <CustomButton title="signUp" onPress={onSignUpPress} className="mt-6" />
 
         {/* OAuth  */}
+        <OAuth />
 
         <Link
           href="/sign-in"
