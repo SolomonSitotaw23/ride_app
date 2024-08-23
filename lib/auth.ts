@@ -1,4 +1,4 @@
-// import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 
 // export interface TokenCache {
 //   getToken: (key: string) => Promise<string | undefined | null>;
@@ -6,7 +6,6 @@
 //   clearToken?: (key: string) => void;
 // }
 //
-import * as SecureStore from "expo-secure-store";
 
 export const tokenCache = {
   async getToken(key: string) {
