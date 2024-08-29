@@ -1,27 +1,28 @@
-import { View, Text, ScrollView, Image, Alert } from "react-native";
-import {} from "react-native-safe-area-context";
-import { icons, images } from "@/constants";
-import InputField from "@/components/InputFIeld";
-import { useState } from "react";
-import CustomButton from "@/components/CustomButton";
-import { Link, router } from "expo-router";
-import OAuth from "@/components/OAuth";
-import { useSignUp } from "@clerk/clerk-expo";
-import ReactNativeModal from "react-native-modal";
+import { View, Text, ScrollView, Image, Alert } from 'react-native';
+import {} from 'react-native-safe-area-context';
+import { icons, images } from '@/constants';
+import InputField from '@/components/InputFIeld';
+import { useState } from 'react';
+import CustomButton from '@/components/CustomButton';
+import { Link, router } from 'expo-router';
+import OAuth from '@/components/OAuth';
+import { useSignUp } from '@clerk/clerk-expo';
+import ReactNativeModal from 'react-native-modal';
+import { fetchAPI } from '@/lib/fetch';
 
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
+    name: '',
+    email: '',
+    password: '',
   });
 
   const [verification, setVerfication] = useState({
-    state: "default",
-    error: "",
-    code: "",
+    state: 'default',
+    error: '',
+    code: '',
   });
 
   const onSignUpPress = async () => {
@@ -35,14 +36,14 @@ const SignUp = () => {
         password: form.password,
       });
 
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
 
       setVerfication({
         ...verification,
-        state: "pending",
+        state: 'pending',
       });
     } catch (err: any) {
-      Alert.alert("Error", err.errors[0].longMessage);
+      Alert.alert('Error', err.errors[0].longMessage);
     }
   };
 
@@ -56,22 +57,30 @@ const SignUp = () => {
         code: verification.code,
       });
 
-      if (completeSignUp.status === "complete") {
-        // Create a database user
+      if (completeSignUp.status === 'complete') {
+        await fetchAPI('/(api)/user', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            clerkId: completeSignUp.createdUserId,
+          }),
+        });
+
         await setActive({ session: completeSignUp.createdSessionId });
-        setVerfication({ ...verification, state: "success" });
+        setVerfication({ ...verification, state: 'success' });
       } else {
         setVerfication({
           ...verification,
-          state: "failed",
-          error: "verification failed",
+          state: 'failed',
+          error: 'verification failed',
         });
         console.error(JSON.stringify(completeSignUp, null, 2));
       }
     } catch (err: any) {
       setVerfication({
         ...verification,
-        state: "failed",
+        state: 'failed',
         error: err.errors[0].longMessage,
       });
     }
@@ -123,9 +132,9 @@ const SignUp = () => {
         {/* Verification Modal  */}
       </View>
       <ReactNativeModal
-        isVisible={verification.state === "pending"}
+        isVisible={verification.state === 'pending'}
         onModalHide={() => {
-          if (verification.state === "success") setShowSuccessModal(true);
+          if (verification.state === 'success') setShowSuccessModal(true);
         }}
       >
         <View className="bg-white px-7 py-9 rounded-2xl min-h-[300px]">
@@ -168,7 +177,7 @@ const SignUp = () => {
             title="browse home"
             onPress={() => {
               setShowSuccessModal(false);
-              router.replace("/(root)/(tabs)/home");
+              router.replace('/(root)/(tabs)/home');
             }}
             className="mt-5"
           />
