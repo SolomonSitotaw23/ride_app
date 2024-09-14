@@ -71,6 +71,8 @@ const Map = () => {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
 
   useEffect(() => {
+    // TODO: remove
+    setDrivers(drivers);
     if (Array.isArray(drivers)) {
       if (!userLatitude || !userLongitude) return;
       const newMarkers = generateMarkersFromData({
