@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Image, Alert } from 'react-native';
 import {} from 'react-native-safe-area-context';
 import { icons, images } from '@/constants';
-import InputField from '@/components/InputFIeld';
+import InputField from '@/components/InputField';
 import { useState } from 'react';
 import CustomButton from '@/components/CustomButton';
 import { Link, router } from 'expo-router';

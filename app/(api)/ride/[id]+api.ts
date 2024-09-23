@@ -6,6 +6,7 @@ export async function GET(request: Request, { id }: { id: string }) {
 
   try {
     const sql = neon(`${process.env.DATABASE_URL}`);
+    console.log('sql');
     const response = await sql`
         SELECT
             rides.ride_id,
@@ -38,6 +39,7 @@ export async function GET(request: Request, { id }: { id: string }) {
             rides.created_at DESC;
         `;
 
+    console.log(response);
     return Response.json({ data: response });
   } catch (error) {
     console.error('Error fetching recent rides:', error);

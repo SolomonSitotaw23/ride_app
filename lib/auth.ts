@@ -1,11 +1,7 @@
-import * as SecureStore from "expo-secure-store";
+import * as SecureStore from 'expo-secure-store';
 
-// export interface TokenCache {
-//   getToken: (key: string) => Promise<string | undefined | null>;
-//   saveToken: (key: string, token: string) => Promise<void>;
-//   clearToken?: (key: string) => void;
-// }
-//
+import * as Linking from 'expo-linking';
+import { fetchAPI } from './fetch';
 
 export const tokenCache = {
   async getToken(key: string) {
@@ -14,11 +10,11 @@ export const tokenCache = {
       if (item) {
         console.log(`${key} was used 🔐 \n`);
       } else {
-        console.log("No values stored under key: " + key);
+        console.log('No values stored under key: ' + key);
       }
       return item;
     } catch (error) {
-      console.error("SecureStore get item error: ", error);
+      console.error('SecureStore get item error: ', error);
       await SecureStore.deleteItemAsync(key);
       return null;
     }
@@ -30,4 +26,43 @@ export const tokenCache = {
       return;
     }
   },
+};
+
+export const googleOAuth = async (startOAuthFlow: any) => {
+  try {
+    const { createdSessionId, signUp, setActive } = await startOAuthFlow({
+      redirectUrl: Linking.createURL('/(root)/(tabs)/home', {
+        scheme: 'soloUber',
+      }),
+    });
+
+    if (createdSessionId) {
+      if (setActive) {
+        await setActive!({ session: createdSessionId });
+        if (signUp.createdUserId) {
+          await fetchAPI('(api)/user', {
+            method: 'POST',
+            body: JSON.stringify({
+              name: `${signUp.firstName} ${signUp.lastName}`,
+              email: signUp.emailAddress,
+              clerkId: signUp.createdUserId,
+            }),
+          });
+        }
+        return {
+          success: true,
+          code: 'success',
+          message: 'you have signed in successfully',
+        };
+      }
+    }
+    return { success: false, code: 'failed', message: 'something went wrong' };
+  } catch (error: any) {
+    console.error(error);
+    return {
+      success: false,
+      code: error.code,
+      message: error?.errors[0].longMessage || 'something went wrong',
+    };
+  }
 };

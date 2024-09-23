@@ -18,8 +18,6 @@ const Payment = ({
   rideTime,
 }: PaymentProps) => {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
-  const { userId } = useAuth();
-  const [success, setSuccess] = useState(false);
   const {
     userAddress,
     userLatitude,
@@ -28,6 +26,27 @@ const Payment = ({
     destinationLongitude,
     destinationAddress,
   } = useLocationStore();
+
+  const { userId } = useAuth();
+  const [success, setSuccess] = useState<boolean>(false);
+  const openPaymentSheet = async () => {
+    await initializePaymentSheet();
+
+    const { error } = await presentPaymentSheet();
+
+    if (error) {
+      // Customer canceled - you should probably do nothing.
+      console.log(error);
+      Alert.alert(
+        `Error code:
+          ${error.code}`,
+        error.message
+      );
+    } else {
+      console.log('payment success');
+      setSuccess(true);
+    }
+  };
 
   const initializePaymentSheet = async () => {
     const { error } = await initPaymentSheet({
@@ -62,12 +81,13 @@ const Payment = ({
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                payment_intent_id: paymentIntent.id,
                 payment_method_id: paymentMethod.id,
-                customerId: customer,
+                payment_intent_id: paymentIntent.id,
+                customer_id: customer,
+                clientSecret: paymentIntent.client_secret,
               }),
             });
-            if (result.client_secrete) {
+            if (result.client_secret) {
               await fetchAPI('/(api)/ride/create', {
                 method: 'POST',
                 headers: {
@@ -87,13 +107,14 @@ const Payment = ({
                   user_id: userId,
                 }),
               });
-              intentCreationCallback({ clientSecret: result.client_secrete });
+              intentCreationCallback({
+                clientSecret: result.client_secret,
+              });
             }
           }
         },
       },
-
-      returnURL: 'solo_uber"://book-ride',
+      returnURL: 'solo_uber://book-ride',
     });
     if (error) {
       // handle error
@@ -101,24 +122,6 @@ const Payment = ({
     }
   };
 
-  const openPaymentSheet = async () => {
-    console.log('openPaymentSheet');
-    await initializePaymentSheet();
-
-    const { error } = await presentPaymentSheet();
-
-    if (error) {
-      // Customer canceled - you should probably do nothing.
-      Alert.alert(
-        `Error code:
-          ${error.code}`,
-        error.message
-      );
-    } else {
-      console.log('payment success');
-      setSuccess(true);
-    }
-  };
   return (
     <>
       <CustomButton

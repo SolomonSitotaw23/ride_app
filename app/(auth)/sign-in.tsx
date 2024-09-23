@@ -1,20 +1,20 @@
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image } from 'react-native';
 
-import { icons, images } from "@/constants";
-import InputField from "@/components/InputFIeld";
-import { useCallback, useState } from "react";
-import CustomButton from "@/components/CustomButton";
-import { Link } from "expo-router";
-import OAuth from "@/components/OAuth";
-import { useRouter } from "expo-router";
-import { useSignIn } from "@clerk/clerk-expo";
+import { icons, images } from '@/constants';
+import InputField from '@/components/InputField';
+import { useCallback, useState } from 'react';
+import CustomButton from '@/components/CustomButton';
+import { Link } from 'expo-router';
+import OAuth from '@/components/OAuth';
+import { useRouter } from 'expo-router';
+import { useSignIn } from '@clerk/clerk-expo';
 
 const SignIn = () => {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
   const [form, setForm] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
 
   const onSignInPress = useCallback(async () => {
@@ -28,9 +28,9 @@ const SignIn = () => {
         password: form.password,
       });
 
-      if (signInAttempt.status === "complete") {
+      if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId });
-        router.replace("/");
+        router.replace('/');
       } else {
         // See https://clerk.com/docs/custom-flows/error-handling
         // for more info on error handling
